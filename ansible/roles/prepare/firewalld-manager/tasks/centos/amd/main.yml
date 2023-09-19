@@ -1,0 +1,16 @@
+---
+- name: Stop firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
+  ignore_errors: yes
+
+- name: Remove default firewalld
+  ansible.builtin.yum:
+    name:
+      - firewalld
+      - python-firewall
+      - firewalld-filesystem
+    state: absent
+  ignore_errors: yes 

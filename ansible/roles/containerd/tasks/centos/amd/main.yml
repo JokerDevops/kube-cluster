@@ -1,0 +1,65 @@
+---
+- name: Online install containerd
+  block:
+    - name: Get containerd packages
+      ansible.builtin.get_url:
+        url: https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
+        dest: /tmp/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
+        checksum: sha256:https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz.sha256sum
+        mode: 0755
+    - name: Install containerd
+      ansible.builtin.unarchive:
+        src: /tmp/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
+        dest: /
+        remote_src: yes
+        exclude: usr/local/sbin/runc
+
+- name: Online install runc
+  block:
+    - name: Get runc packages
+      ansible.builtin.get_url:
+        url: https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64
+        dest: /usr/local/sbin/runc
+        mode: 0755
+        checksum: sha256:https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.sha256sum
+        
+- name: Prepare containerd directory 
+  ansible.builtin.file:
+    path: "{{ containerd_registry_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Configure the containerd main configuration file
+  ansible.builtin.template:
+    src: config.toml.j2
+    dest: "{{ containerd_config_file }}"
+    mode: 0755
+  notify: restart containerd
+
+- name:  Configure  the containerd registry configuration file
+  block:
+    - name: Create docker.io directory
+      ansible.builtin.file:
+        path: "{{ containerd_registry_dir }}/docker.io"
+        state: directory
+        mode: 0755
+    - name: Setting the docker.io image acceleration address
+      ansible.builtin.template:
+        src: registry/docker.io.toml
+        dest: "{{ containerd_registry_dir }}/docker.io/hosts.toml"
+        mode: 0755
+  notify: restart containerd
+
+- name: Configure the containerd systemd service file 
+  ansible.builtin.template:
+    src: containerd.service.j2
+    dest: /etc/systemd/system/containerd.service
+    mode: 0755
+  notify: restart containerd
+
+- name: Start containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    state: started
+    enabled: yes
+    daemon_reload: yes

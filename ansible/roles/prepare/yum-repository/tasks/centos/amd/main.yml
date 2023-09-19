@@ -1,0 +1,25 @@
+---
+
+- name: Aliyun repository
+  block:
+    - name: Get aliyun CentOS-7 repository
+      ansible.builtin.get_url:
+        url: http://mirrors.aliyun.com/repo/Centos-7.repo
+        dest: /etc/yum.repos.d/CentOS-aliyun-Base.repo
+
+    - name: Get aliyun CentOS-7 epel repository
+      get_url:
+        url: http://mirrors.aliyun.com/repo/epel-7.repo
+        dest: /etc/yum.repos.d/aliyun-epel-7.repo
+
+- name: Elrepo kernel repository
+  block:
+    - name: Import elrepo RPM-GPG-KEY
+      ansible.builtin.shell: >
+        rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+    - name: Get elrepo kernel repository
+      ansible.builtin.yum:
+        name:
+          - http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+        state: present
+

@@ -1,0 +1,36 @@
+---
+- name: Install laster new kernel
+  ansible.builtin.yum:
+    name:
+      - kernel-ml
+    enablerepo:
+      - elrepo-kernel
+    state: present
+
+- name: Modify kernel start boot
+  ansible.builtin.shell: >
+    grub2-set-default 0
+
+- name: Restart the server apply new kernel
+  ansible.builtin.reboot:
+    reboot_timeout: 3600
+
+- name: Remove old version kernel
+  ansible.builtin.yum:
+    name:
+      - kernel
+      - kernel-header
+      - kernel-tools
+      - kernel-tools-libs
+    state: absent
+  ignore_errors: yes
+
+- name: Install laster kernel lib tools
+  ansible.builtin.yum:
+    name:
+      - kernel-ml-devel
+      - kernel-ml-tools
+      - kernel-ml-tools-libs
+    enablerepo:
+      - elrepo-kernel
+    state: present

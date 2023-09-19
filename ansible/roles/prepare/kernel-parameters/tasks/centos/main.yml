@@ -1,0 +1,10 @@
+
+---
+- name: main entry to ARM
+  import_tasks: arm/main.yml
+  when: ansible_architecture != 'x86_64'
+
+
+- name: main entry to AMD
+  import_tasks: amd/main.yml
+  when: ansible_architecture == 'x86_64'

@@ -1,0 +1,3 @@
+containerd_config_file: /etc/containerd/config.toml
+
+containerd_registry_dir: /etc/containerd/registry.d

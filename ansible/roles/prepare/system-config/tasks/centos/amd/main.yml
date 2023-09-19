@@ -1,0 +1,67 @@
+---
+- name: Disable SElinux
+  ansible.builtin.lineinfile:
+    dest: /etc/selinux/config
+    regexp: "^SELINUX="
+    line: "SELINUX=disabled"
+
+- name: Install lib packages
+  ansible.builtin.yum:
+    name:
+      - wget 
+      - psmisc
+      - vim 
+      - net-tools
+      - nfs-utils
+      - telnet
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+      - git
+      - network-scripts
+      - tar
+      - curl
+      - gcc
+      - bash-completion
+      - ipvsadm
+      - ipset
+      - sysstat
+      - conntrack
+      - conntrack-tools
+    state: present
+
+- name: Disable swap memory
+  block:
+    - name: Update /etc/fstab
+      ansible.builtin.replace:
+        path: /etc/fstab
+        regexp: '^\s*[^#].*\sswap\s'
+        replace: '#\g<0>'
+    - name: sysctl configure
+      ansible.posix.sysctl:
+        name: vm.swappiness
+        value: 0
+        reload: yes
+        sysctl_file: /etc/sysctl.conf
+        sysctl_set: true
+    - name: swapoff 
+      ansible.builtin.shell: >
+        swapoff -a
+  tags:
+    - disable-swap
+
+
+- name: Configure ulimit
+  ansible.builtin.lineinfile:
+    path: /etc/security/limits.conf
+    line: "{{ item }}"
+    insertafter: EOF
+  with_items:
+    - "* soft nofile 655360"
+    - "* hard nofile 131072"
+    - "* soft nproc 655350"
+    - "* hard nproc 655350"
+    - "* seft memlock unlimited"
+    - "* hard memlock unlimitedd"
+  tags:
+    - config-ulimit

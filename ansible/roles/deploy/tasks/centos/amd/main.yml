@@ -1,0 +1,27 @@
+---
+- name: Prepare some dirs
+  ansible.builtin.file:
+    name: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ deploy_dir }}/ssl"
+    - "{{ deploy_dir }}/backup"
+    - "{{ deploy_dir }}/bin/"
+
+- name: Prepare cfssl tools
+  block:
+    - name: Get cfssl packages
+      ansible.builtin.get_url:
+        url: https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssl_1.6.4_linux_amd64
+        dest: "{{ deploy_dir }}/bin/cfssl"
+        checksum: sha256:https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssl_1.6.4_checksums.txt
+        mode: 0755
+    - name: Get cfssljson packages
+      ansible.builtin.get_url:
+        url: https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssljson_1.6.4_linux_amd64
+        dest: "{{ deploy_dir }}/bin/cfssljson"
+        checksum: sha256:https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssl_1.6.4_checksums.txt
+        mode: 0755
+
+        

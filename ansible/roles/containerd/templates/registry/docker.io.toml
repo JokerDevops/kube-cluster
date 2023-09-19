@@ -1,0 +1,3 @@
+server = "https://docker.io"
+[host."https://mrdecov6.mirror.aliyuncs.com"]
+  capabilities = ["pull", "resolve"]

@@ -1,0 +1,7 @@
+---
+- name: Aliyun repository
+  block:
+    - name: Get aliyun CentOS-7 repository
+      get_url:
+        url: http://mirrors.aliyun.com/repo/Centos-altarch-7.repo
+        dest: /etc/yum.repos.d/CentOS-aliyun-altarch.repo

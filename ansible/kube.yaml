@@ -1,0 +1,22 @@
+- name: always run
+  hosts: all
+  any_errors_fatal: true
+  gather_facts: true
+  become: false
+  roles:
+    - role: prepare/yum-repository
+    - role: prepare/kernel
+    - role: prepare/firewalld-manager
+    - role: prepare/system-config
+    - role: prepare/kernel-parameters
+      tags:
+        - update-kernel-parameters
+
+- name: containerd
+  hosts: all
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: containerd
+  
+  tags: hosts-containerd
