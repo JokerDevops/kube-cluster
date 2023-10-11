@@ -1,22 +1,84 @@
+- name: deploy
+  hosts: localhost
+  roles:
+    - role: deploy
+  tags:
+    - deploy
+
 - name: always run
   hosts: all
   any_errors_fatal: true
-  gather_facts: true
-  become: false
+  gather_facts: yes
   roles:
     - role: prepare/yum-repository
+      tags:
+        - yum
+    - role: chronyd
+      tags:
+        - chronyd
     - role: prepare/kernel
+      tags:
+        - kernel-upgrade
     - role: prepare/firewalld-manager
     - role: prepare/system-config
     - role: prepare/kernel-parameters
       tags:
         - update-kernel-parameters
 
+- name: etcd
+  hosts: etcd
+  roles:
+    - role: etcd
+  tags:
+    - hosts-etcd
+
 - name: containerd
-  hosts: all
+  hosts: containerd
   any_errors_fatal: true
   gather_facts: true
   roles:
     - role: containerd
-  
   tags: hosts-containerd
+
+- name: kube-master
+  hosts: kube-master
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: kube-master
+    - role: kube-node
+      tags:
+        - hosts-kube-node
+  tags: hosts-kube-master
+
+- name: kube-node
+  hosts: kube-node
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: kube-node
+  tags: hosts-kube-node
+
+- name: helm
+  hosts: kube-master
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: helm
+  tags: hosts-helm
+
+- name: cilium
+  hosts: kube-master
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: cilium
+  tags: hosts-cilium
+
+- name: coredns
+  hosts: kube-master
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: coredns
+  tags: hosts-coredns

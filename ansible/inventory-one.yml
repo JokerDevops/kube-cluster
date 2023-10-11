@@ -1,0 +1,17 @@
+all:
+  vars:
+    ansible_port: 22
+    ansible_user: root
+
+etcd:
+  hosts:
+    192.168.56.2: {}
+
+containerd:
+  hosts:
+    192.168.56.2: {}
+
+kube-master:
+  hosts:
+    192.168.56.2: {}
+

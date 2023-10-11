@@ -1,0 +1,44 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/kubernetes/kubernetes
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/kube-apiserver \
+      --v=2  \
+      --allow-privileged=true  \
+      --bind-address=0.0.0.0  \
+      --secure-port=6443  \
+      --advertise-address={{ inventory_hostname}} \
+      --service-cluster-ip-range={{ SERVICE_CIDR }}  \
+      --service-node-port-range=30000-60000  \
+      --etcd-servers={{ etcd_cluster }} \
+      --etcd-cafile=/etc/kubernetes/pki/ca.pem  \
+      --etcd-certfile=/etc/kubernetes/pki/etcd.pem  \
+      --etcd-keyfile=/etc/kubernetes/pki/etcd-key.pem  \
+      --client-ca-file=/etc/kubernetes/pki/ca.pem  \
+      --tls-cert-file=/etc/kubernetes/pki/kube-apiserver.pem  \
+      --tls-private-key-file=/etc/kubernetes/pki/kube-apiserver-key.pem  \
+      --kubelet-client-certificate=/etc/kubernetes/pki/kube-apiserver.pem  \
+      --kubelet-client-key=/etc/kubernetes/pki/kube-apiserver-key.pem  \
+      --service-account-key-file=/etc/kubernetes/pki/sa.pub  \
+      --service-account-signing-key-file=/etc/kubernetes/pki/sa.key  \
+      --service-account-issuer=https://kubernetes.default.svc.cluster.local \
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname  \
+      --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,ResourceQuota  \
+      --authorization-mode=Node,RBAC  \
+      --enable-bootstrap-token-auth=true  \
+      --requestheader-client-ca-file=/etc/kubernetes/pki/ca.pem  \
+      --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy.pem  \
+      --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-key.pem  \
+      --requestheader-allowed-names=aggregator  \
+      --requestheader-group-headers=X-Remote-Group  \
+      --requestheader-extra-headers-prefix=X-Remote-Extra-  \
+      --requestheader-username-headers=X-Remote-User \
+      --enable-aggregator-routing=true
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

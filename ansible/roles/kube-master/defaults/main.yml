@@ -1,0 +1,7 @@
+CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
+MASTER_CERT_HOSTS:
+  - "k8s.test.io"
+
+etcd_cluster: "{{ groups['etcd'] | map('regex_replace', '^(.*)$', 'https://\\1:' + 2379|string ) | join(',') }}"
+
+kube_apiserver_addr: "{{ groups['kube-master'][0] }}"

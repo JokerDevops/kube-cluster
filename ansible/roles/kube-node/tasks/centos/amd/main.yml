@@ -1,0 +1,232 @@
+---
+- name: Online download kubernetes client packages
+  ansible.builtin.get_url:
+    url: https://dl.k8s.io/v1.28.2/kubernetes-node-linux-amd64.tar.gz
+    dest: "{{ deploy_dir }}/packages/"
+    checksum: sha512:adafa3beb4525d898a602ec87f1d2b35ad89f71f6b89aad81ee0cdff97a2916ef323a21b5007d61bb0453e12d3058ad21861184049eb22c26b86be4dc268e7d9
+  delegate_to: localhost
+  run_once: yes
+
+- name: Prepare kube-proxy certificate related files
+  block:
+    - name: Preparing kube-proxy Profiles and Signature Requests
+      ansible.builtin.template:
+        src: kube-proxy-csr.json.j2
+        dest: "{{ deploy_dir }}/ssl/kube-proxy-csr.json"
+    
+    - name: Create an kube-proxy certificate and private key
+      ansible.builtin.shell: "cd {{ deploy_dir }}/ssl/ && \
+        ../bin/cfssl gencert -ca=ca.pem \
+            -ca-key=ca-key.pem \
+            -config=ca-config.json \
+            -profile=kubernetes kube-proxy-csr.json |  ../bin/cfssljson -bare kube-proxy"
+  delegate_to: localhost
+  run_once: yes
+  tags:
+    - kube-cert
+    - kube-proxy-cert
+
+- name: Preparing the kube-proxy kubeconfig file
+  block:
+    - name: Setting up a kube-proxy cluster entry
+      ansible.builtin.command: >
+        /usr/local/bin/kubectl config set-cluster kubernetes \
+          --certificate-authority={{ deploy_dir }}/ssl/ca.pem \
+          --embed-certs=true \
+          --server=https://{{ kube_apiserver_addr }}:6443 \
+          --kubeconfig=/kube-proxy.kubeconfig
+    - name: kube-proxy > Sets up a cluster context item and specifies the user.
+      ansible.builtin.shell: >
+        /usr/local/bin/kubectl config set-context system:kube-proxy@kubernetes \
+          --cluster=kubernetes \
+          --user=system:kube-proxy \
+          --kubeconfig=/kube-proxy.kubeconfig
+    - name: kube-proxy > Setting up a user authentication credential
+      ansible.builtin.shell: >
+        /usr/local/bin/kubectl  config set-credentials system:kube-proxy \
+          --client-certificate={{ deploy_dir }}/ssl/kube-proxy.pem \
+          --client-key={{ deploy_dir }}/ssl/kube-proxy-key.pem \
+          --embed-certs=true \
+          --kubeconfig=/kube-proxy.kubeconfig
+    - name: kube-proxy > Setting the Default Context Environment
+      ansible.builtin.shell: >
+        /usr/local/bin/kubectl config use-context system:kube-proxy@kubernetes \
+          --kubeconfig=/kube-proxy.kubeconfig
+    - name: Moving the kube-proxy cluster environment configuration file to the persistence directory
+      ansible.builtin.shell: >
+        mv /kube-proxy.kubeconfig  {{ deploy_dir }}/context/
+  delegate_to: localhost
+  run_once: yes
+  tags:
+    - kube-proxy-context
+    - kube-context
+
+- name: Preparing the tls-bootstrap kubeconfig file
+  block:
+    - name: Setting up a tls-bootstrap cluster entry
+      ansible.builtin.command: >
+        /usr/local/bin/kubectl config set-cluster kubernetes \
+          --certificate-authority={{ deploy_dir }}/ssl/ca.pem \
+          --embed-certs=true \
+          --server=https://{{ kube_apiserver_addr }}:6443 \
+          --kubeconfig=/tls-bootstrap.kubeconfig
+    - name: tls-bootstrap > Sets up a cluster context item and specifies the user.
+      ansible.builtin.shell: >
+        /usr/local/bin/kubectl config set-context tls-bootstrap-token-user@kubernetes \
+          --cluster=kubernetes \
+          --user=tls-bootstrap-token-user \
+          --kubeconfig=/tls-bootstrap.kubeconfig
+    - name: tls-bootstrap > Setting up a user authentication credential
+      ansible.builtin.shell: >
+        /usr/local/bin/kubectl  config set-credentials tls-bootstrap-token-user  \
+          --token=c8ad9c.2e4d610cf3e7426e \
+          --kubeconfig=/tls-bootstrap.kubeconfig
+    - name: tls-bootstrap > Setting the Default Context Environment
+      ansible.builtin.shell: >
+        /usr/local/bin/kubectl config use-context tls-bootstrap-token-user@kubernetes \
+          --kubeconfig=/tls-bootstrap.kubeconfig
+    - name: Moving the tls-bootstrap cluster environment configuration file to the persistence directory
+      ansible.builtin.shell: >
+        mv /tls-bootstrap.kubeconfig  {{ deploy_dir }}/context/
+  delegate_to: localhost
+  run_once: yes
+  tags:
+    - tls-bootstrap-context
+    - kube-context
+
+- name: Transmission-related bootstrap kubeconfig
+  ansible.builtin.copy:
+    src: "{{ deploy_dir }}/context/tls-bootstrap.kubeconfig"
+    dest: /etc/kubernetes/kubeconfig/
+    mode: 0755
+  tags:
+    - copy-bootstrap-kubeconfig
+
+- name: Preparing the certificate storage directory
+  ansible.builtin.file:
+    path: /etc/kubernetes/pki/
+    state: directory
+    mode: 0755
+  tags:
+    - kube-dir
+
+- name: Prepare the kubeconfig file storage directory
+  ansible.builtin.file:
+    path: /etc/kubernetes/kubeconfig/
+    state: directory
+    mode: 0755
+  tags:
+    - kube-dir
+
+
+- name: Prepare the kubeconfig file storage directory
+  ansible.builtin.file:
+    path: /etc/kubernetes/manifests/
+    state: directory
+    mode: 0755
+  tags:
+    - kube-dir
+
+- name: Transmission-related certificates
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes/pki/
+  with_items:
+    - "{{ deploy_dir }}/ssl/"
+  tags:
+    - copy-kube-cert
+
+- name: Transmission-related kubeconfig
+  ansible.builtin.copy:
+    src: "{{ deploy_dir }}/context/"
+    dest: /etc/kubernetes/kubeconfig/
+    mode: 0755
+  tags:
+    - copy-kubeconfig
+
+- name: Setting up the admin user to access the kubernetes cluster
+  block:
+    - name: Create ~/.kube/  directory 
+      ansible.builtin.file:
+        path: ~/.kube/
+        state: directory
+
+    - name: Transmission-related admin kubeconfig
+      ansible.builtin.copy:
+        src: "{{ deploy_dir }}/context/admin.kubeconfig"
+        dest: "~/.kube/config"
+
+    - name: Transmission-related admin kubeconfig to localhost
+      ansible.builtin.copy:
+        src: "{{ deploy_dir }}/context/admin.kubeconfig"
+        dest: "~/.kube/config"
+      delegate_to: localhost
+      run_once: yes
+  tags:
+    - set-admin
+
+- name: Installing kubernetes-node
+  ansible.builtin.unarchive:
+    src: "{{ deploy_dir }}/packages/kubernetes-node-linux-amd64.tar.gz"
+    dest: /usr/local/bin/
+    include:
+      - kubernetes/node/bin/
+    extra_opts:
+      - --strip-components=3
+  tags:
+    - install-kube-node
+
+- name: Transferring kubelet configuration files
+  ansible.builtin.template:
+    src: kubelet-conf.yml.j2
+    dest: /etc/kubernetes/kubelet-conf.yml
+    mode: 0755
+  tags:
+    - copy-kubelet-conf
+
+- name: Transferring kubelet service files
+  ansible.builtin.template:
+    src: services/kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    mode: 0755
+  tags:
+    - copy-kubelet-service
+    - copy-kube-node-service
+
+# TODO: Start kubelet srervice
+- name: Start kubelet services
+  ansible.builtin.systemd:
+    name: kubelet
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags:
+    - start-kubelet
+
+- name: Transferring kube-proxy configuration files
+  ansible.builtin.template:
+    src: kube-proxy.yaml.j2
+    dest: /etc/kubernetes/kube-proxy.yaml
+    mode: 0755
+  
+  tags:
+    - copy-kube-proxy-conf
+
+- name: Transferring kube-proxy service files
+  ansible.builtin.template:
+    src: services/kube-proxy.service.j2
+    dest: /etc/systemd/system/kube-proxy.service
+    mode: 0755
+  tags:
+    - copy-kube-proxy-service
+
+
+- name: Start kube-proxy services
+  ansible.builtin.systemd:
+    name: kube-proxy
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags:
+    - start-kube-proxy
+    - copy-kube-node-service

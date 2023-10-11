@@ -1,0 +1,4 @@
+---
+- name: main entry to centos
+  import_tasks: centos/main.yml
+  when: ansible_distribution in [ 'CentOS','RedHat' ]

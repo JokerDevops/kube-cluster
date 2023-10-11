@@ -18,7 +18,6 @@
       - device-mapper-persistent-data
       - lvm2
       - git
-      - network-scripts
       - tar
       - curl
       - gcc
@@ -28,7 +27,7 @@
       - sysstat
       - conntrack
       - conntrack-tools
-    state: present
+    state: latest
 
 - name: Disable swap memory
   block:

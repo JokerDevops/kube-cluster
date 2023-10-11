@@ -1,0 +1,72 @@
+---
+- name: Prepare etcd certificate related files
+  block:
+    - name: Preparing etcd Profiles and Signature Requests
+      ansible.builtin.template:
+        src: etcd-csr.json.j2
+        dest: "{{ deploy_dir }}/ssl/etcd-csr.json"
+    
+    - name: Create an etcd certificate and private key
+      ansible.builtin.shell: "cd {{ deploy_dir }}/ssl/ && \
+        ../bin/cfssl gencert -ca=ca.pem \
+            -ca-key=ca-key.pem \
+            -config=ca-config.json \
+            -profile=kubernetes etcd-csr.json |  ../bin/cfssljson -bare etcd"
+  delegate_to: localhost
+  run_once: yes
+  tags:
+    - etcd-cert
+    - all-cert
+
+- name: Prepare etcd  directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory 
+    mode: 0755
+  with_items:
+    - /etc/etcd/ssl
+    - /usr/local/etcd/data
+
+- name: Transmitting etcd certificate files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/etcd/ssl/"
+  with_items:
+    - "{{ deploy_dir }}/ssl/ca-key.pem"
+    - "{{ deploy_dir }}/ssl/ca.pem"
+    - "{{ deploy_dir }}/ssl/etcd.pem"
+    - "{{ deploy_dir }}/ssl/etcd-key.pem"
+
+
+- name: Online install etcd
+  block:
+    - name: Get etcd packages
+      ansible.builtin.get_url:
+        url: https://github.com/etcd-io/etcd/releases/download/v3.4.27/etcd-v3.4.27-linux-amd64.tar.gz
+        dest: /tmp/etcd-v3.4.27-linux-amd64.tar.gz
+        mode: 0755
+    - name: Install etcd 
+      ansible.builtin.unarchive:
+        src: /tmp/etcd-v3.4.27-linux-amd64.tar.gz
+        dest: /usr/local/etcd/
+        remote_src: yes
+        extra_opts:
+          - --strip-components=1
+      
+- name: Transferring the etcd configuration file
+  ansible.builtin.template:
+    src: etcd.config.yml.j2
+    dest: /etc/etcd/etcd.config.yml
+
+- name: Transferring the etcd service file
+  ansible.builtin.template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+
+- name: Start etcd service
+  ansible.builtin.systemd:
+    name: etcd
+    state: started
+    daemon_reload: yes
+    enabled: yes
+    

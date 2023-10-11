@@ -1,12 +1,20 @@
 ---
-- name: Online install containerd
+- name: Online download containerd packages
+  ansible.builtin.get_url:
+    url: https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
+    dest: "{{ deploy_dir }}/packages/"
+    checksum: sha256:https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz.sha256sum
+    mode: 0755
+  delegate_to: localhost
+  run_once: yes
+
+- name: Start install containerd
   block:
-    - name: Get containerd packages
-      ansible.builtin.get_url:
-        url: https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
+    - name: Transferring containerd packets
+      ansible.builtin.copy:
+        src: "{{ deploy_dir }}/packages/cri-containerd-cni-1.7.6-linux-amd64.tar.gz"
         dest: /tmp/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
-        checksum: sha256:https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz.sha256sum
-        mode: 0755
+
     - name: Install containerd
       ansible.builtin.unarchive:
         src: /tmp/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
@@ -14,15 +22,23 @@
         remote_src: yes
         exclude: usr/local/sbin/runc
 
-- name: Online install runc
+- name: Online download runc packages
+  ansible.builtin.get_url:
+    url: https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64
+    dest: "{{ deploy_dir }}/packages/runc"
+    checksum: sha256:https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.sha256sum
+    mode: 0755
+  delegate_to: localhost
+  run_once: yes
+  
+- name: Install runc
   block:
-    - name: Get runc packages
-      ansible.builtin.get_url:
-        url: https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64
+    - name: Transferring runc packages
+      ansible.builtin.copy:
+        src: "{{ deploy_dir }}/packages/runc"
         dest: /usr/local/sbin/runc
         mode: 0755
-        checksum: sha256:https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.sha256sum
-        
+
 - name: Prepare containerd directory 
   ansible.builtin.file:
     path: "{{ containerd_registry_dir }}"

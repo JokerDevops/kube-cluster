@@ -1,0 +1,33 @@
+---
+- name: Install chronyd
+  ansible.builtin.yum:
+    name:
+      - chrony
+    state: installed
+
+- name: Delete default ntp time server
+  ansible.builtin.lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^server '
+    state: absent
+
+- name: Adding an ntp time server
+  ansible.builtin.lineinfile:
+    path: /etc/chrony.conf
+    line: "{{ item }}"
+    insertbefore: BOF
+  with_items:
+    - server ntp1.aliyun.com iburst minpoll 4 maxpoll 10
+    - server ntp2.aliyun.com iburst minpoll 4 maxpoll 10
+    - server ntp3.aliyun.com iburst minpoll 4 maxpoll 10
+    - server ntp4.aliyun.com iburst minpoll 4 maxpoll 10
+    - server ntp5.aliyun.com iburst minpoll 4 maxpoll 10
+    - server ntp6.aliyun.com iburst minpoll 4 maxpoll 10
+    - server ntp7.aliyun.com iburst minpoll 4 maxpoll 10
+
+- name: Start chronyd
+  ansible.builtin.systemd:
+    name: chronyd
+    state: started
+    daemon_reload: yes
+    enabled: yes

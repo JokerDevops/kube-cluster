@@ -8,6 +8,8 @@
     - "{{ deploy_dir }}/ssl"
     - "{{ deploy_dir }}/backup"
     - "{{ deploy_dir }}/bin/"
+    - "{{ deploy_dir }}/packages/"
+    - "{{ deploy_dir }}/context/"
 
 - name: Prepare cfssl tools
   block:
@@ -24,4 +26,15 @@
         checksum: sha256:https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssl_1.6.4_checksums.txt
         mode: 0755
 
-        
+- name: Preparing CA Profiles and Signature Requests
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0755
+  with_items:
+    - {src: "ca-csr.json.j2", dest: "{{ deploy_dir }}/ssl/ca-csr.json"}
+    - {src: "ca-config.json.j2", dest: "{{ deploy_dir }}/ssl/ca-config.json"}
+
+- name: Preparing CA Profiles and Signature Requests
+  ansible.builtin.shell: " cd {{ deploy_dir }}/ssl && \
+      ../bin/cfssl gencert -initca ca-csr.json | ../bin/cfssljson -bare ca"

@@ -1,0 +1,1 @@
+initial_cluster: "{{ groups['etcd'] | map('regex_replace', '^(.*)$', '\\1=https://\\1:' + 2380|string ) | join(',') }}"

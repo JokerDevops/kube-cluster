@@ -1,0 +1,37 @@
+{
+  "CN": "kube-apiserver",
+  "hosts": [
+    "127.0.0.1",
+
+    
+    "{{ inventory_hostname }}",
+    
+    "{{ CLUSTER_KUBERNETES_SVC_IP }}",
+{% for host in MASTER_CERT_HOSTS %}
+    "{{ host }}",
+{% endfor %}
+
+{% for host in groups['kube-master'] %}
+    "{{ host }}",
+{% endfor %}
+
+    "kubernetes",
+    "kubernetes.default",
+    "kubernetes.default.svc",
+    "kubernetes.default.svc.cluster",
+    "kubernetes.default.svc.cluster.local"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "GUIZHOU",
+      "L": "XIAMEN",
+      "O": "BAISHAN",
+      "OU": "kube-apiserver"
+    }
+  ]
+}
