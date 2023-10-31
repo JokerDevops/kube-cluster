@@ -19,7 +19,7 @@
   ansible.builtin.yum:
     name:
       - kernel
-      - kernel-header
+      - kernel-headers
       - kernel-tools
       - kernel-tools-libs
     state: absent
