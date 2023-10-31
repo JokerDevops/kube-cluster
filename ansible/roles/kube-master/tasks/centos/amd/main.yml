@@ -314,6 +314,13 @@
         src: "{{ deploy_dir }}/context/admin.kubeconfig"
         dest: "~/.kube/config"
 
+    - name: Create ~/.kube/ localhost directory
+      ansible.builtin.file:
+        path: ~/.kube/
+        state: directory
+      delegate_to: localhost
+      run_once: yes
+
     - name: Transmission-related admin kubeconfig to localhost
       ansible.builtin.copy:
         src: "{{ deploy_dir }}/context/admin.kubeconfig"
@@ -348,5 +355,6 @@
 - name: Create bootstrap secret in cluster
   ansible.builtin.shell: >
     kubectl apply -f /etc/kubernetes/kubeconfig/bootstrap.secret.yaml
+  run_once: yes
   tags:
     - create-bootstrap-secret
