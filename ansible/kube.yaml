@@ -1,3 +1,4 @@
+
 - name: deploy
   hosts: localhost
   roles:
@@ -47,8 +48,6 @@
   roles:
     - role: kube-master
     - role: kube-node
-      tags:
-        - hosts-kube-node
   tags: hosts-kube-master
 
 - name: kube-node
