@@ -53,6 +53,15 @@
       run_once: yes
       tags:
         - helm-install-coredns
+    - name: Save values configure
+      ansible.builtin.shell: >
+        helm -n kube-system get values coredns >> {{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values-save.yaml
+      args:
+        chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/"
+      delegate_to: localhost
+      run_once: yes
+      tags:
+        - coredns-get-values
   tags:
     - install-coredns
 
