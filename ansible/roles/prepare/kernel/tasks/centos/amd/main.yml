@@ -4,7 +4,7 @@
     name:
       - kernel-ml
     enablerepo:
-      - elrepo-kernel
+      - bsc-kernel
     state: present
 
 - name: Modify kernel start boot

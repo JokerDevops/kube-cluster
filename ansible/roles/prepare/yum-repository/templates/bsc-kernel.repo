@@ -1,0 +1,6 @@
+[bsc-kernel]
+name=ELRepo.org Community Enterprise Linux Repository - el7
+baseurl=https://ss.bscstorage.com/bspackage/release/kernel/
+enabled=1
+gpgcheck=0
+protect=0

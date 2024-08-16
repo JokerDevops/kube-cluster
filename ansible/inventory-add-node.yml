@@ -1,0 +1,14 @@
+all:
+  vars:
+    ansible_port: 22
+    ansible_user: root
+# 保持不变
+kube-master:
+  hosts:
+    172.18.156.109: {}
+    172.18.156.96: {}
+    172.18.156.57: {}
+# 添加新增的节点 ip
+add-kube-node:
+  hosts:
+    172.18.154.210: {}

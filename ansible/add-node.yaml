@@ -1,0 +1,35 @@
+- name: always run
+  hosts: add-kube-node
+  any_errors_fatal: true
+  gather_facts: yes
+  roles:
+    - role: prepare/yum-repository
+      tags:
+        - yum
+    - role: chronyd
+      tags:
+        - chronyd
+    - role: prepare/kernel
+      tags:
+        - kernel-upgrade
+    - role: prepare/firewalld-manager
+    - role: prepare/system-config
+    - role: prepare/kernel-parameters
+      tags:
+        - update-kernel-parameters
+
+- name: containerd
+  hosts: add-kube-node
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: containerd
+  tags: hosts-containerd
+
+- name: kube-node
+  hosts: add-kube-node
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: kube-node
+  tags: hosts-kube-node
