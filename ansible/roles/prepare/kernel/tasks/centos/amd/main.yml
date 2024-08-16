@@ -32,5 +32,5 @@
       - kernel-ml-tools
       - kernel-ml-tools-libs
     enablerepo:
-      - elrepo-kernel
+      - bsc-kernel
     state: present

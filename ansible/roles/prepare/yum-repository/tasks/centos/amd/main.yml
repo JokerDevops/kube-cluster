@@ -16,7 +16,7 @@
 - name: Copy kernel repository to /etc/yum.repos.d/
   block:
     - name: Copy kernel repository to /etc/yum.repos.d/
-      ansible.builtin.copy:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "/etc/yum.repos.d/{{ item.dest }}"
         mode: 0644
