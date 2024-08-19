@@ -8,10 +8,10 @@ fi
 
 ONLINE=false
 UPDATE_DEPLOY_ENV=false
-DATA_DIR=/data/
+DOCKER_DATA_DIR=/data/
 DEPLOY_IMAGE=ghcr.io/jokerdevops/kube-cluster
 IMAGE_TAG=main
-NAME=kube-cluster
+CONTAINER_NAME=kube-cluster
 
 ORCHSYM_INSTALLER_ANSIBLE_PACKAGES_FILES='http://bspackage.ss.bscstorage.com/packages/docker/files/'
 item=1
@@ -37,15 +37,15 @@ function perCheck() {
 
   # 获取命令行参数
   if [[ $1 == "-h" || $1 == "--help" ]]; then
-    infostr="用法: bash initDeployEnv.sh [选项]...\n\n
+    infostr="用法: bash kube-cluster.sh [选项]...\n\n
     此脚本用于初始化部署机，如果可以访问公网，执行时要加 -o 选项，否则为离线初始化;\n
     离线初始化的话，需要将docker-amd-20.10.9.tgz、kube-cluster.tgz(部署环境的镜像包)
     上传至 /tmp/ 目录下;\n\n\n
+    默认宿主机持久化目录为 /kube-cluster/ansible/deploy, 与容器内的 /kube-cluster/ansible/deploy 目录映射;\n
     Support options:\n
     \t-o: 如果携带此选项，则表示为在线初始化部署机;\n
     \t-t: 此选项用于指定 kube-cluster 镜像的 tag,默认为 $IMAGE_TAG ;\n
     \t-u: 仅更新 deploy 容器;\n
-    \t-d: 指定 kube-cluster 容器的持久化目录,默认为 $DATA_DIR ;\n
     \t-n: 指定部署容器的名称, 默认为 $NAME ;\n"
 
     printInfo $infostr
@@ -60,9 +60,6 @@ function perCheck() {
     "u")
       UPDATE_DEPLOY_ENV=true
       ;;
-    "d")
-      DATA_DIR=$OPTARG
-      ;;
     "t")
       IMAGE_TAG=$OPTARG
       ;;
@@ -70,7 +67,7 @@ function perCheck() {
       CONTAINER_NAME=$OPTARG-$IMAGE_TAG
       ;;
     *)
-      infoStr="./initDeployEnv.sh：包含无效选项,\nTry './initDeployEnv.sh --help' for more information."
+      infoStr="./kube-cluster.sh：包含无效选项,\nTry './kube-cluster.sh --help' for more information."
       printError "$infoStr"
       ;;
     esac
@@ -103,8 +100,8 @@ function installDocker() {
   tar zxf /tmp/$DOCKER_PKG -C /tmp/ &>/dev/null || printError "/tmp/$DOCKER_PKG解压失败，请检查安装包的md5值。"
 
   # 同时将docker安装包copy到kube-cluster容器的持久化目录上一份
-  [[ -d ${DATA_DIR}/kube-cluster/deploy/packages ]] || mkdir -p ${DATA_DIR}/kube-cluster/deploy/packages
-  cp -a /tmp/$DOCKER_PKG ${DATA_DIR}/kube-cluster/deploy/packages
+  [[ -d /kube-cluster/ansible/deploy/packages ]] || mkdir -p /kube-cluster/ansible/deploy/packages
+  cp -a /tmp/$DOCKER_PKG /kube-cluster/ansible/deploy/packages
 
   chmod -R 755 /tmp/docker
   cp -a /tmp/docker/* /usr/bin/
@@ -136,7 +133,7 @@ EOF
   [[ -d /etc/docker ]] || mkdir /etc/docker
   cat >/etc/docker/daemon.json <<EOF
 {
-    "data-root": "${DATA_DIR}/docker"
+    "data-root": "${DOCKER_DATA_DIR}/docker"
 }
 EOF
 }
@@ -163,7 +160,7 @@ function runDeployEnv() {
 
   /usr/bin/docker run -itd --privileged --name ${CONTAINER_NAME} --restart=always --network host \
     -v ~/.ssh:/root/.ssh \
-    -v ${DATA_DIR}/kube-cluster/deploy:/kube-cluster/ansible/deploy \
+    -v /kube-cluster/ansible/deploy:/kube-cluster/ansible/deploy \
     $FULL_IMAGE_NAME >/dev/null
 
 }
