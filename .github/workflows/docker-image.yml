@@ -58,4 +58,4 @@ jobs:
           files: release/*
           draft: true
           fail_on_unmatched_files: true
-          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
