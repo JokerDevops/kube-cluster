@@ -99,8 +99,8 @@ function installDocker() {
   tar zxf /tmp/$DOCKER_PKG -C /tmp/ &>/dev/null || printError "/tmp/$DOCKER_PKG解压失败，请检查安装包的md5值。"
 
   # 同时将docker安装包copy到kube-cluster容器的持久化目录上一份
-  [[ -d ${DATA_DIR}/kube-cluster/packages/files/ ]] || mkdir -p ${DATA_DIR}/kube-cluster/packages/files/
-  cp -a /tmp/$DOCKER_PKG ${DATA_DIR}/kube-cluster/packages/files/
+  [[ -d ${DATA_DIR}/kube-cluster/deploy/packages ]] || mkdir -p ${DATA_DIR}/kube-cluster/deploy/packages
+  cp -a /tmp/$DOCKER_PKG ${DATA_DIR}/kube-cluster/deploy/packages
 
   chmod -R 755 /tmp/docker
   cp -a /tmp/docker/* /usr/bin/
@@ -158,9 +158,8 @@ function runDeployEnv() {
   set -e
 
   /usr/bin/docker run -itd --privileged --name ${CONTAINER_NAME} --restart=always --network host \
-    -v ${DATA_DIR}/kube-cluster/deploy-targets:/kube-cluster/deploy-targets \
     -v ~/.ssh:/root/.ssh \
-    -v ${DATA_DIR}/kube-cluster/packages:/kube-cluster/ansible/packages \
+    -v ${DATA_DIR}/kube-cluster/deploy:/workspace/ansible/deploy \
     $FULL_IMAGE_NAME >/dev/null
 
 }
