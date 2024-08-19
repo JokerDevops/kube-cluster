@@ -12,7 +12,7 @@
             -ca-key=ca-key.pem \
             -config=ca-config.json \
             -profile=kubernetes etcd-csr.json |  ../bin/cfssljson -bare etcd"
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   tags:
     - etcd-cert

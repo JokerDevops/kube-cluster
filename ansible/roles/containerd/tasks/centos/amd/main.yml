@@ -5,7 +5,7 @@
     dest: "{{ deploy_dir }}/packages/"
     checksum: sha256:https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz.sha256sum
     mode: 0755
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
 
 - name: Start install containerd
@@ -28,7 +28,7 @@
     dest: "{{ deploy_dir }}/packages/runc"
     checksum: sha256:https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.sha256sum
     mode: 0755
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   
 - name: Install runc

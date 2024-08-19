@@ -4,7 +4,7 @@
     url: https://dl.k8s.io/{{ kubernetes_version }}/kubernetes-node-linux-amd64.tar.gz
     dest: "{{ deploy_dir }}/packages/"
     checksum: sha512:adafa3beb4525d898a602ec87f1d2b35ad89f71f6b89aad81ee0cdff97a2916ef323a21b5007d61bb0453e12d3058ad21861184049eb22c26b86be4dc268e7d9
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
 
 - name: Prepare kube-proxy certificate related files
@@ -20,7 +20,7 @@
             -ca-key=ca-key.pem \
             -config=ca-config.json \
             -profile=kubernetes kube-proxy-csr.json |  ../bin/cfssljson -bare kube-proxy"
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   tags:
     - kube-cert
@@ -55,7 +55,7 @@
     - name: Moving the kube-proxy cluster environment configuration file to the persistence directory
       ansible.builtin.shell: >
         mv /kube-proxy.kubeconfig  {{ deploy_dir }}/context/
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   tags:
     - kube-proxy-context
@@ -88,7 +88,7 @@
     - name: Moving the tls-bootstrap cluster environment configuration file to the persistence directory
       ansible.builtin.shell: >
         mv /tls-bootstrap.kubeconfig  {{ deploy_dir }}/context/
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   tags:
     - tls-bootstrap-context
@@ -156,11 +156,11 @@
         src: "{{ deploy_dir }}/context/admin.kubeconfig"
         dest: "~/.kube/config"
 
-    - name: Transmission-related admin kubeconfig to localhost
+    - name: Transmission-related admin kubeconfig to 127.0.0.1
       ansible.builtin.copy:
         src: "{{ deploy_dir }}/context/admin.kubeconfig"
         dest: "~/.kube/config"
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
   tags:
     - set-admin

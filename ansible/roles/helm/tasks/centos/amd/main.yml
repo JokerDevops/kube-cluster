@@ -5,7 +5,7 @@
     dest: "{{ deploy_dir }}/packages/"
     checksum: sha256:1b2313cd198d45eab00cc37c38f6b1ca0a948ba279c29e322bdf426d406129b5
     mode: 0755
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   tags:
     - download-helm
@@ -19,7 +19,7 @@
     - name: Move helm to /usr/local/bin/
       ansible.builtin.shell: >
         mv /tmp/linux-amd64/helm /usr/local/bin/
-  delegate_to: localhost
+  delegate_to: 127.0.0.1
   run_once: yes
   tags:
     - install-helm

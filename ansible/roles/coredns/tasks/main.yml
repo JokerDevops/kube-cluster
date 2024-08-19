@@ -4,7 +4,7 @@
     - name: Add CoreDNS repo
       ansible.builtin.shell: >
         helm repo add coredns https://coredns.github.io/helm
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - helm-repo
@@ -13,7 +13,7 @@
         helm pull coredns/coredns --version 1.27.1
       args:
         chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/"
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - pull-coredns
@@ -22,7 +22,7 @@
         src: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns-1.27.1.tgz"
         dest: "{{ inventory_dir }}/{{ deploy_dir }}/packages/"
         remote_src: yes
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         -  unzip-coredns
@@ -31,7 +31,7 @@
         path: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values.yaml"
         regexp: 'coredns/coredns'
         replace: 'm.daocloud.io/docker.io/coredns/coredns'
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - update-coredns-images
@@ -40,7 +40,7 @@
         path: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values.yaml"
         regexp: 'registry\.k8s\.io'
         replace: 'm.daocloud.io/registry.k8s.io'
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - update-coredns-images
@@ -49,7 +49,7 @@
         helm -n kube-system install coredns .  -f values.yaml  --set service.clusterIP={{ CLUSTER_DNS_SVC_IP }}
       args:
         chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/"
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - helm-install-coredns
@@ -58,7 +58,7 @@
         helm -n kube-system get values coredns >> {{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values-save.yaml
       args:
         chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/"
-      delegate_to: localhost
+      delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - coredns-get-values
