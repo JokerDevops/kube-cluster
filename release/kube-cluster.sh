@@ -11,6 +11,7 @@ UPDATE_DEPLOY_ENV=false
 DATA_DIR=/data/
 DEPLOY_IMAGE=ghcr.io/jokerdevops/kube-cluster
 IMAGE_TAG=main
+NAME=kube-cluster
 
 ORCHSYM_INSTALLER_ANSIBLE_PACKAGES_FILES='http://bspackage.ss.bscstorage.com/packages/docker/files/'
 item=1
@@ -44,7 +45,8 @@ function perCheck() {
     \t-o: 如果携带此选项，则表示为在线初始化部署机;\n
     \t-t: 此选项用于指定 kube-cluster 镜像的 tag,默认为 $IMAGE_TAG ;\n
     \t-u: 仅更新 deploy 容器;\n
-    \t-d: 指定 kube-cluster 容器的持久化目录,默认为 $DATA_DIR ;\n"
+    \t-d: 指定 kube-cluster 容器的持久化目录,默认为 $DATA_DIR ;\n
+    \t-n: 指定部署容器的名称, 默认为 $NAME ;\n"
 
     printInfo $infostr
     exit 0
@@ -64,6 +66,9 @@ function perCheck() {
     "t")
       IMAGE_TAG=$OPTARG
       ;;
+    "n")
+      CONTAINER_NAME=$OPTARG-$IMAGE_TAG
+      ;;
     *)
       infoStr="./initDeployEnv.sh：包含无效选项,\nTry './initDeployEnv.sh --help' for more information."
       printError "$infoStr"
@@ -73,7 +78,6 @@ function perCheck() {
 
   FULL_IMAGE_NAME=${DEPLOY_IMAGE}:${IMAGE_TAG}
   ORCHSYM_INSTALL_PKG=kube-cluster-$IMAGE_TAG.tgz
-  CONTAINER_NAME=kube-cluster-$IMAGE_TAG
   printInfo "是否为在线部署: $ONLINE"
   printInfo "部署镜像名称: $FULL_IMAGE_NAME"
 }

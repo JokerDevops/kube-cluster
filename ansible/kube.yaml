@@ -1,6 +1,6 @@
 
 - name: deploy
-  hosts: localhost
+  hosts: deploy
   roles:
     - role: deploy
   tags:

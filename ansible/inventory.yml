@@ -3,6 +3,9 @@ all:
     ansible_port: 22
     ansible_user: root
 
+deploy:
+  hosts:
+    192.168.56.7: {}
 etcd:
   hosts:
     192.168.56.7: {}
