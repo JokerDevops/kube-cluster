@@ -51,9 +51,11 @@ jobs:
   publishGitRelease:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: release/*
           draft: true
           fail_on_unmatched_files: true
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
