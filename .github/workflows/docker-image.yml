@@ -50,12 +50,16 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   publishGitRelease:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: release/*
           draft: true
           fail_on_unmatched_files: true
-          token: ${{ secrets.GITHUB_TOKEN }}
