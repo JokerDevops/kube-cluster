@@ -1,4 +1,4 @@
-FROM atd-registry.sp.baishan.com/orchsym-public/buildx-builder-base:python3.10.14-poetry
+FROM ghcr.io/jokerdevops/python-poetry:main
 COPY . /workspace/
 WORKDIR /workspace
 RUN poetry install --no-dev
