@@ -2,7 +2,7 @@ name: Release EasyCmd
 on:
   push:
     tags:
-      - 'v.*'
+      - 'v\d*'
       - 'draft-*'
 jobs:
   publishGitRelease:
