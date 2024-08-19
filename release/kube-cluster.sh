@@ -52,7 +52,7 @@ function perCheck() {
     exit 0
   fi
 
-  while getopts ":uot:d:" optname; do
+  while getopts ":uot:d:n:" optname; do
     case "$optname" in
     "o")
       ONLINE=true
