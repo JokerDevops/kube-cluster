@@ -7,7 +7,7 @@
     - deploy
 
 - name: always run
-  hosts: all
+  hosts: all:!deploy
   any_errors_fatal: true
   gather_facts: yes
   roles:
