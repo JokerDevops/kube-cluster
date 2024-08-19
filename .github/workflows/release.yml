@@ -1,0 +1,19 @@
+name: Release EasyCmd
+on:
+  push:
+    tags:
+      - 'v.*'
+      - 'draft-*'
+jobs:
+  publishGitRelease:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: release/*
+          draft: true
+          fail_on_unmatched_files: true
