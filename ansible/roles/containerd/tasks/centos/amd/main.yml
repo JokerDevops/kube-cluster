@@ -2,7 +2,7 @@
 - name: Online download containerd packages
   ansible.builtin.get_url:
     url: https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
-    dest: "{{ deploy_dir }}/packages/"
+    dest: "{{ inventory_dir }}/packages/"
     checksum: sha256:https://github.com/containerd/containerd/releases/download/v1.7.6/cri-containerd-cni-1.7.6-linux-amd64.tar.gz.sha256sum
     mode: 0755
   delegate_to: 127.0.0.1
@@ -12,7 +12,7 @@
   block:
     - name: Transferring containerd packets
       ansible.builtin.copy:
-        src: "{{ deploy_dir }}/packages/cri-containerd-cni-1.7.6-linux-amd64.tar.gz"
+        src: "{{ inventory_dir }}/packages/cri-containerd-cni-1.7.6-linux-amd64.tar.gz"
         dest: /tmp/cri-containerd-cni-1.7.6-linux-amd64.tar.gz
 
     - name: Install containerd
@@ -25,7 +25,7 @@
 - name: Online download runc packages
   ansible.builtin.get_url:
     url: https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64
-    dest: "{{ deploy_dir }}/packages/runc"
+    dest: "{{ inventory_dir }}/packages/runc"
     checksum: sha256:https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.sha256sum
     mode: 0755
   delegate_to: 127.0.0.1
@@ -35,7 +35,7 @@
   block:
     - name: Transferring runc packages
       ansible.builtin.copy:
-        src: "{{ deploy_dir }}/packages/runc"
+        src: "{{ inventory_dir }}/packages/runc"
         dest: /usr/local/sbin/runc
         mode: 0755
 

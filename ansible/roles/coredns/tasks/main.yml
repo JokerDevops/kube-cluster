@@ -12,15 +12,15 @@
       ansible.builtin.shell: >
         helm pull coredns/coredns --version 1.27.1
       args:
-        chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/"
+        chdir: "{{ inventory_dir }}/packages/"
       delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - pull-coredns
     - name: Unzip coredns packages
       ansible.builtin.unarchive:
-        src: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns-1.27.1.tgz"
-        dest: "{{ inventory_dir }}/{{ deploy_dir }}/packages/"
+        src: "{{ inventory_dir }}/packages/coredns-1.27.1.tgz"
+        dest: "{{ inventory_dir }}/packages/"
         remote_src: yes
       delegate_to: 127.0.0.1
       run_once: yes
@@ -28,7 +28,7 @@
         -  unzip-coredns
     - name: Modify the coredns image address
       ansible.builtin.replace:
-        path: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values.yaml"
+        path: "{{ inventory_dir }}/packages/coredns/values.yaml"
         regexp: 'coredns/coredns'
         replace: 'm.daocloud.io/docker.io/coredns/coredns'
       delegate_to: 127.0.0.1
@@ -37,7 +37,7 @@
         - update-coredns-images
     - name: Modify the coredns image address
       ansible.builtin.replace:
-        path: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values.yaml"
+        path: "{{ inventory_dir }}/packages/coredns/values.yaml"
         regexp: 'registry\.k8s\.io'
         replace: 'm.daocloud.io/registry.k8s.io'
       delegate_to: 127.0.0.1
@@ -48,16 +48,16 @@
       ansible.builtin.shell: >
         helm -n kube-system install coredns .  -f values.yaml  --set service.clusterIP={{ CLUSTER_DNS_SVC_IP }}
       args:
-        chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/"
+        chdir: "{{ inventory_dir }}/packages/coredns/"
       delegate_to: 127.0.0.1
       run_once: yes
       tags:
         - helm-install-coredns
     - name: Save values configure
       ansible.builtin.shell: >
-        helm -n kube-system get values coredns >> {{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/values-save.yaml
+        helm -n kube-system get values coredns >> {{ inventory_dir }}/packages/coredns/values-save.yaml
       args:
-        chdir: "{{ inventory_dir }}/{{ deploy_dir }}/packages/coredns/"
+        chdir: "{{ inventory_dir }}/packages/coredns/"
       delegate_to: 127.0.0.1
       run_once: yes
       tags:

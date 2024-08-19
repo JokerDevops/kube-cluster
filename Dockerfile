@@ -1,4 +1,4 @@
 FROM ghcr.io/jokerdevops/python-poetry:main
-COPY . /workspace/
-WORKDIR /workspace
+COPY . /kube-cluster/
+WORKDIR /kube-cluster
 RUN poetry install --no-dev

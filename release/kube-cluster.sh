@@ -163,7 +163,7 @@ function runDeployEnv() {
 
   /usr/bin/docker run -itd --privileged --name ${CONTAINER_NAME} --restart=always --network host \
     -v ~/.ssh:/root/.ssh \
-    -v ${DATA_DIR}/kube-cluster/deploy:/workspace/ansible/deploy \
+    -v ${DATA_DIR}/kube-cluster/deploy:/kube-cluster/ansible/deploy \
     $FULL_IMAGE_NAME >/dev/null
 
 }

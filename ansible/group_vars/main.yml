@@ -1,6 +1,4 @@
-deploy_dir: deploy
 SERVICE_CIDR: "10.68.0.0/16"
 CLUSTER_CIDR: "10.20.0.0/16"
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
-
 kubernetes_version: "v1.28.2"

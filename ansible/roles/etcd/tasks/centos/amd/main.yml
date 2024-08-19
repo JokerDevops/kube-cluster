@@ -4,10 +4,10 @@
     - name: Preparing etcd Profiles and Signature Requests
       ansible.builtin.template:
         src: etcd-csr.json.j2
-        dest: "{{ deploy_dir }}/ssl/etcd-csr.json"
+        dest: "{{ inventory_dir }}/ssl/etcd-csr.json"
     
     - name: Create an etcd certificate and private key
-      ansible.builtin.shell: "cd {{ deploy_dir }}/ssl/ && \
+      ansible.builtin.shell: "cd {{ inventory_dir }}/ssl/ && \
         ../bin/cfssl gencert -ca=ca.pem \
             -ca-key=ca-key.pem \
             -config=ca-config.json \
@@ -32,10 +32,10 @@
     src: "{{ item }}"
     dest: "/etc/etcd/ssl/"
   with_items:
-    - "{{ deploy_dir }}/ssl/ca-key.pem"
-    - "{{ deploy_dir }}/ssl/ca.pem"
-    - "{{ deploy_dir }}/ssl/etcd.pem"
-    - "{{ deploy_dir }}/ssl/etcd-key.pem"
+    - "{{ inventory_dir }}/ssl/ca-key.pem"
+    - "{{ inventory_dir }}/ssl/ca.pem"
+    - "{{ inventory_dir }}/ssl/etcd.pem"
+    - "{{ inventory_dir }}/ssl/etcd-key.pem"
 
 
 - name: Online install etcd
