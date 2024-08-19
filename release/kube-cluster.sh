@@ -42,9 +42,9 @@ function perCheck() {
     上传至 /tmp/ 目录下;\n\n\n
     Support options:\n
     \t-o: 如果携带此选项，则表示为在线初始化部署机;\n
-    \t-t: 此选项用于指定buildx-kube-cluster镜像的tag,默认为$IMAGE_TAG;\n
-    \t-u: 仅更新deploy容器;\n
-    \t-d: 指定kube-cluster容器的持久化目录,默认为$DATA_DIR;\n"
+    \t-t: 此选项用于指定 kube-cluster 镜像的 tag,默认为 $IMAGE_TAG ;\n
+    \t-u: 仅更新 deploy 容器;\n
+    \t-d: 指定 kube-cluster 容器的持久化目录,默认为 $DATA_DIR ;\n"
 
     printInfo $infostr
     exit 0
@@ -73,7 +73,7 @@ function perCheck() {
 
   FULL_IMAGE_NAME=${DEPLOY_IMAGE}:${IMAGE_TAG}
   ORCHSYM_INSTALL_PKG=kube-cluster-$IMAGE_TAG.tgz
-  CONTAINER_NAME=orchsym-install-$IMAGE_TAG
+  CONTAINER_NAME=kube-cluster-$IMAGE_TAG
   printInfo "是否为在线部署: $ONLINE"
   printInfo "部署镜像名称: $FULL_IMAGE_NAME"
 }
@@ -98,7 +98,7 @@ function installDocker() {
   set -e
   tar zxf /tmp/$DOCKER_PKG -C /tmp/ &>/dev/null || printError "/tmp/$DOCKER_PKG解压失败，请检查安装包的md5值。"
 
-  # 同时将docker安装包copy到orchsym-install容器的持久化目录上一份
+  # 同时将docker安装包copy到kube-cluster容器的持久化目录上一份
   [[ -d ${DATA_DIR}/kube-cluster/packages/files/ ]] || mkdir -p ${DATA_DIR}/kube-cluster/packages/files/
   cp -a /tmp/$DOCKER_PKG ${DATA_DIR}/kube-cluster/packages/files/
 
@@ -154,7 +154,7 @@ function checkOrchsymInstaller() {
 
 function runDeployEnv() {
   set +e
-  /usr/bin/docker ps -a | grep orchsym-install- | awk '{print $1}' | xargs -I {} /usr/bin/docker rm -f {}
+  /usr/bin/docker ps -a | grep kube-cluster- | awk '{print $1}' | xargs -I {} /usr/bin/docker rm -f {}
   set -e
 
   /usr/bin/docker run -itd --privileged --name ${CONTAINER_NAME} --restart=always --network host \
