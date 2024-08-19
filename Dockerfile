@@ -1,3 +1,3 @@
-FROM python:3.10
-RUN pip install ansible ansible-core
+FROM python:3.12
+RUN poetry install --no-dev
 COPY . /workspace/
