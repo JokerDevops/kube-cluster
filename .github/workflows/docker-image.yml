@@ -30,7 +30,7 @@ jobs:
           installer-parallel: true
 
       - name: Set Project version
-        run: poetry version -- ${{ github.ref_name }}.$GITHUB_RUN_NUMBER
+        run: poetry version -- ${{ github.ref_name }}.${{ env.GITHUB_RUN_NUMBER }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
