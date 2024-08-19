@@ -50,10 +50,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   publishGitRelease:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      actions: write
+    permissions: write-all
     steps:
       - uses: actions/checkout@v4
       - name: Release
