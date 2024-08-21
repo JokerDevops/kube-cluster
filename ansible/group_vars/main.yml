@@ -2,3 +2,8 @@ SERVICE_CIDR: "10.68.0.0/16"
 CLUSTER_CIDR: "10.20.0.0/16"
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 kubernetes_version: "v1.28.2"
+# kubernetes_version: "v1.28.2" md5
+kubernetes_server_md5: "sha512:cd54f2f48733806208d3b1585ed307bebf91893e250a1eb3e18355c9a9e6d1f75a70966cb66165be2fbb8566e5368b14f66f63a8929fbceca30aa73bfd491441"
+kubernetes_client_md5: "sha512:ab534cd06d8cc89d1288590cfae98415facaa7db2f481d8f6be0a20574d2990cc55348cf98386c34df7788aa80ff018fc844816a2b605bcb350a82d752738fdc"
+kubernetes_node_md5: "sha512:adafa3beb4525d898a602ec87f1d2b35ad89f71f6b89aad81ee0cdff97a2916ef323a21b5007d61bb0453e12d3058ad21861184049eb22c26b86be4dc268e7d9"
+

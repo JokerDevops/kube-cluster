@@ -3,7 +3,7 @@
   ansible.builtin.get_url:
     url: https://dl.k8s.io/{{ kubernetes_version }}/kubernetes-node-linux-amd64.tar.gz
     dest: "{{ inventory_dir }}/packages/"
-    checksum: sha512:adafa3beb4525d898a602ec87f1d2b35ad89f71f6b89aad81ee0cdff97a2916ef323a21b5007d61bb0453e12d3058ad21861184049eb22c26b86be4dc268e7d9
+    checksum: "{{ kubernetes_node_md5 }}"
   delegate_to: 127.0.0.1
   run_once: yes
 
